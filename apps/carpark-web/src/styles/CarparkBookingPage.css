@@ -1,0 +1,79 @@
+.CarparkBookingPage {
+    height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(79deg, #7439db, #c66fbc 48%, #F79440);
+}
+
+.BookingPageHeader {
+    width: 100%;
+    height: 10vh;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    background-color: #7439db;
+}
+
+.DateContainer {
+    width: 33%;
+    display: flex;
+    justify-content: center;
+}
+
+.ModeContainer {
+    width: 33%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.UserInfoContainer {
+    width: 33%;
+}
+
+.logout-btn {
+    margin: 1rem;
+
+}
+
+.UserData {
+    display: flex;
+    justify-content: center;
+}
+
+.NameAndSurname {
+    display: inline-block;
+    margin: 1rem 3rem;
+}
+.Username {
+    display: inline-block;
+    margin: 1rem 4rem;
+}
+
+.DatePicker {
+    position: absolute;
+}
+
+.WeekdayButton {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.WeekdayButtonSelected {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    border: 5px solid black;
+}
+
+.AdministrationButton {
+    border: 5px solid black;
+}
+
+.BookingModeContainer {
+    width: 50%;
+    justify-content: left;
+}
+
+.AdministrationModeContainer {
+    width: 50%;
+    justify-content: left;
+}

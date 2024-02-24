@@ -1,0 +1,128 @@
+.ParkingSpaceFree {
+    border-width: 5px;
+    border-color: black;
+    border-style: solid;
+    background-color: green;
+    width: 120px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.SpaceNumber {
+    color:black;
+    font-size:xx-large;
+}
+
+.booking-btn {
+    background-color: white;
+    color: black;
+    font-size: medium;
+    cursor: pointer;
+    border: none;
+    padding: 20px;
+    border-radius: 10px;
+    border-color: black;
+    border-style: solid;
+}
+
+.ParkingSpaceBusy {
+    border-width: 5px;
+    border-color: black;
+    border-style: solid;
+    background-color: red;
+    width: 120px;
+    height: 200px;
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ParkingSpaceRaw {
+    border-width: 5px;
+    border-color: black;
+    border-style: solid;
+    background-color: rgb(65, 174, 218);
+    width: 120px;
+    height: 200px;
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ParkingSpaceNew {
+    border-width: 5px;
+    border-color: black;
+    border-style: solid;
+    background-color: rgb(149, 19, 209);
+    width: 120px;
+    height: 200px;
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.release-btn {
+    background-color: white;
+    color: black;
+    font-size: medium;
+    cursor: pointer;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    border-color: black;
+    border-style: solid;
+}
+
+.deactivate-btn {
+    background-color: white;
+    color: black;
+    font-size: medium;
+    cursor: pointer;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    border-color: black;
+    border-style: solid;
+}
+
+.activate-btn {
+    background-color: white;
+    color: black;
+    font-size: medium;
+    cursor: pointer;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    border-color: black;
+    border-style: solid;
+}
+
+.Name {
+    color:black;
+    font-size: large;
+}
+
+.Surname {
+    color:black;
+    font-size: large;
+}
+
+.SpaceNumberInput {
+    width: 70%;
+    border-color: black;
+    border-style: solid;
+    font-size: large;
+    text-align: center;
+}
