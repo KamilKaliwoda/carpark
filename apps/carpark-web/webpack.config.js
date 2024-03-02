@@ -8,7 +8,7 @@ module.exports = {
     path: join(__dirname, '../../dist/apps/carpark-web'),
   },
   devServer: {
-    port: 8080,
+    port: 9131,
   },
   plugins: [
     new NxWebpackPlugin({

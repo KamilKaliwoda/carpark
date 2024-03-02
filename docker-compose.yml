@@ -1,0 +1,31 @@
+version: '1.0'
+
+services:
+  carpark-app:
+    build:
+      context: .
+      dockerfile: ./apps/carpark-app/Dockerfile
+    image: carpark-app
+    ports:
+      - 9132:9132
+    expose:
+      - 9132
+    env_file:
+      - path: ./apps/carpark-app/.env.docker
+    command: node ./main.js
+
+  carpark-web:
+    build:
+      context: ./apps/carpark-web
+      dockerfile: Dockerfile
+    image: carpark-web
+    ports:
+      - 9131:9131
+    expose:
+      - 9131
+    depends_on:
+      - carpark-app
+    env_file:
+      - path: ./apps/carpark-web/.env.docker
+    command: npm start
+  

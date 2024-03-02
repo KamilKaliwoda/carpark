@@ -1,0 +1,271 @@
+{
+  "graph": {
+    "nodes": {
+      "carpark-app": {
+        "name": "carpark-app",
+        "type": "app",
+        "data": {
+          "root": "apps/carpark-app",
+          "name": "carpark-app",
+          "targets": {
+            "version": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "version"
+              },
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            },
+            "lint": {
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/apps/carpark-app/.eslintrc.json",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/carpark-app",
+                "command": "eslint ."
+              },
+              "configurations": {}
+            },
+            "test": {
+              "options": {
+                "cwd": "apps/carpark-app",
+                "command": "jest"
+              },
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "jest"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}\\coverage\\apps\\carpark-app"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {}
+            },
+            "build": {
+              "executor": "@nx/esbuild:esbuild",
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "defaultConfiguration": "production",
+              "options": {
+                "platform": "node",
+                "outputPath": "dist/apps/carpark-app",
+                "format": [
+                  "cjs"
+                ],
+                "bundle": false,
+                "main": "apps/carpark-app/src/main.ts",
+                "tsConfig": "apps/carpark-app/tsconfig.app.json",
+                "assets": [
+                  "apps/carpark-app/src/assets"
+                ],
+                "generatePackageJson": true,
+                "esbuildOptions": {
+                  "sourcemap": true,
+                  "outExtension": {
+                    ".js": ".js"
+                  }
+                }
+              },
+              "configurations": {
+                "development": {},
+                "production": {
+                  "esbuildOptions": {
+                    "sourcemap": false,
+                    "outExtension": {
+                      ".js": ".js"
+                    }
+                  }
+                }
+              }
+            },
+            "serve": {
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "options": {
+                "buildTarget": "carpark-app:build"
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "carpark-app:build:development"
+                },
+                "production": {
+                  "buildTarget": "carpark-app:build:production"
+                }
+              }
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/carpark-app/src",
+          "projectType": "application",
+          "tags": [],
+          "implicitDependencies": []
+        }
+      },
+      "carpark-web": {
+        "name": "carpark-web",
+        "type": "app",
+        "data": {
+          "root": "apps/carpark-web",
+          "name": "carpark-web",
+          "targets": {
+            "start": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start"
+              },
+              "configurations": {}
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/carpark-web",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist\\apps\\carpark-web"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            },
+            "serve": {
+              "options": {
+                "cwd": "apps/carpark-web",
+                "args": [
+                  "--node-env=development"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "executor": "nx:run-commands",
+              "configurations": {}
+            },
+            "preview": {
+              "options": {
+                "cwd": "apps/carpark-web",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "executor": "nx:run-commands",
+              "configurations": {}
+            },
+            "serve-static": {
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {}
+            },
+            "lint": {
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/apps/carpark-web/.eslintrc.json",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/carpark-web",
+                "command": "eslint ."
+              },
+              "configurations": {}
+            },
+            "test": {
+              "options": {
+                "cwd": "apps/carpark-web",
+                "command": "jest"
+              },
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "jest"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}\\coverage\\apps\\carpark-web"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {}
+            }
+          },
+          "projectType": "application",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/carpark-web/src",
+          "tags": [],
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "carpark-app": [],
+      "carpark-web": []
+    }
+  },
+  "affectedProjects": [],
+  "criticalPath": []
+}
