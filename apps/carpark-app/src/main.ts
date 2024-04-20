@@ -14,7 +14,7 @@ export const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:9131',
+    origin: 'http://localhost:8131',
   }),
 );
 

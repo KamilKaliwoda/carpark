@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 9132
+EXPOSE 8132
 
 CMD node ./main.js

@@ -7,11 +7,11 @@ services:
       dockerfile: ./apps/carpark-app/Dockerfile
     image: carpark-app
     ports:
-      - 9132:9132
+      - 8132:8132
     expose:
-      - 9132
+      - 8132
     env_file:
-      - path: ./apps/carpark-app/.env.docker
+      - ./apps/carpark-app/.env.docker
     command: node ./main.js
 
   carpark-web:
@@ -20,12 +20,12 @@ services:
       dockerfile: Dockerfile
     image: carpark-web
     ports:
-      - 9131:9131
+      - 8131:8131
     expose:
-      - 9131
+      - 8131
     depends_on:
       - carpark-app
     env_file:
-      - path: ./apps/carpark-web/.env.docker
+      - ./apps/carpark-web/.env.docker
     command: npm start
   
