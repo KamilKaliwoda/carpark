@@ -31,7 +31,7 @@ export class Endpoints {
 const validateLogIn = (app, sql) => {
   app.get('/validateLogIn', function (req, res) {
     const username: string = req.query.username;
-    let password: string = req.query.password;
+    const password: string = req.query.password;
     const request = new sql.Request();
     request.query(
       `select us.username, us.name, us.surname, us.password, rl.name as role from dbo.[User] us
