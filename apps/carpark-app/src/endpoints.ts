@@ -1,7 +1,7 @@
 import express from 'express';
-import sql from 'mssql';
 import { hash, genSalt, compare } from 'bcrypt';
 import _ from 'lodash';
+import sql from 'pg';
 
 export class Endpoints {
   app: Express.Application;
@@ -29,43 +29,51 @@ export class Endpoints {
 }
 
 const validateLogIn = (app, sql) => {
-  app.get('/validateLogIn', function (req, res) {
+  app.get('/validateLogIn', async function (req, res) {
     const username: string = req.query.username;
     const password: string = req.query.password;
-    const request = new sql.Request();
-    request.query(
-      `select us.username, us.name, us.surname, us.password, rl.name as role from dbo.[User] us
-      inner join dbo.Role rl
-      on rl.id = us.role_id
-      where username = '${username}'`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        if (!_.isEqual(recordset['recordset'], [])) {
-          compare(password, recordset['recordset'][0]['password'], function(err, result) {
-            if (result) {
-              res.send(recordset['recordset']);
-            } else {
-              res.send([]);
-            }
-          });
+    try {
+      const query = `
+      SELECT us.username, us.name, us.surname, us.password, rl.name as role 
+      FROM Users.User us
+      INNER JOIN Users.Role rl
+      ON rl.id = us.role_id
+      WHERE username = '${username}';
+      `
+      const result = await sql.query(query);
+      if (!_.isEmpty(result.rows)) {
+        const userRecord = result.rows[0];
+        const passwordMatches = await compare(password, userRecord.password);
+        if (passwordMatches) {
+          res.send(userRecord);
+        } else {
+          res.send([]);
         }
-      },
-    );
+      } else {
+        res.send([]);
+      }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const checkIfLoginExists = (app, sql) => {
-  app.get('/checkIfLoginExists', function (req, res) {
+  app.get('/checkIfLoginExists', async function (req, res) {
     const username: string = req.query.username;
-    const request = new sql.Request();
-
-    request.query(
-      `select username from dbo.[User] where username = '${username}'`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset']);
-      },
-    );
+    try {
+      const query = `
+      SELECT username 
+      FROM Users.User 
+      WHERE username = '${username}';
+      `
+      const result = await sql.query(query);
+      res.send(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
@@ -75,18 +83,27 @@ const tryInsertingNewUser = (app, sql) => {
     const password: string = req.query.password;
     const name: string = req.query.name;
     const surname: string = req.query.surname;
-    const request = new sql.Request();
-    hash(password, 10, function(err, hash) {
-      request.query(
-        `declare @role_id smallint = (select id from dbo.Role where name = 'user')
-        
-        insert into dbo.[User] (username, name, surname, password, role_id)
-        values ('${username}', '${name}', '${surname}', '${hash}', @role_id)`,
-        function (err, recordset) {
-          if (err) console.log(err);
-          res.send(true);
-        },
-      );
+    hash(password, 10, async function(err, hash) {
+      try {
+        const query = `
+        DO $$
+        DECLARE role_id SMALLINT;
+        BEGIN
+
+        SELECT id INTO role_id 
+        FROM Users.Role 
+        where name = 'user';
+
+        INSERT INTO Users.User (username, name, surname, password, role_id)
+        VALUES ('${username}', '${name}', '${surname}', '${hash}', role_id);
+        END $$;
+        `
+        await sql.query(query);
+        res.send(true);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+      }
     });
   });
 };
@@ -95,182 +112,203 @@ const changeUserPassword = (app, sql) => {
   app.get('/changeUserPassword', function (req, res) {
     const username: string = req.query.username;
     const password: string = req.query.password;
-    const request = new sql.Request();
-    hash(password, 10, function(err, hash) {
-      request.query(
-        `update dbo.[User]
+    hash(password, 10, async function(err, hash) {
+      try {
+        const query = `
+        update Users.User
         set password = '${hash}'
-        where username = '${username}'`,
-        function (err, recordset) {
-          if (err) console.log(err);
-          res.send(true);
-        },
-      );
+        where username = '${username};'
+        `
+        await sql.query(query);
+        res.send(true);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+      }
     });
   });
 };
 
 const getBookingConfiguration = (app, sql) => {
-  app.get('/getBookingConfiguration', function (req, res) {
+  app.get('/getBookingConfiguration', async function (req, res) {
     const selected_date: string = req.query.selected_date;
-    const request = new sql.Request();
-
-    request.query(
-      `declare @booking_date VARCHAR(100) = '${selected_date}'
-
-      ;with cte_weekday_exclution_filter (id, space_id, user_id, working_day_id, last_update, active) as (
+    try {
+      const query = `
+      WITH cte_weekday_exclution_filter as (
         select wps.id, wps.space_id, wps.user_id, wps.working_day_id, wps.last_update, wps.active
-        from dbo.WeekdayParkingSpaceToUser wps
-        left join dbo.WeekdayExclusionParkingSpaceToUser weps
-        on weps.space_id = wps.space_id and weps.active = 1 and weps.booking_date = cast(@booking_date as date)
-        where wps.active = 1 and wps.working_day_id = (select id from dbo.WorkingDay where weekday = DATENAME(WEEKDAY, @booking_date)) and weps.id is NULL
+        from Spaces.WeekdayParkingSpaceToUser wps
+        left join Spaces.WeekdayExclusionParkingSpaceToUser weps
+        on weps.space_id = wps.space_id and weps.active = TRUE and weps.booking_date = CAST(${selected_date} AS DATE)
+        where wps.active = TRUE and wps.working_day_id = (select id from Days.WorkingDay where weekday = TO_CHAR(CAST(${selected_date} AS DATE), 'Day')) and weps.id is NULL
       )
       
       select ps.space_number,
-          ISNULL(us1.username, us2.username) as username,
-          ISNULL(us1.[name], us2.[name]) as name,
-          ISNULL(us1.surname, us2.surname) as surname,
-          case 
+        COALESCE(us1.username, us2.username) as username,
+        COALESCE(us1.name, us2.name) as name,
+        COALESCE(us1.surname, us2.surname) as surname,
+        case 
           when us1.surname is not NULL then 'Day'
           when us2.surname is not NULL then 'Weekday'
           else NULL 
-          end as type
-            from dbo.ParkingSpace ps
-            left join dbo.ParkingSpaceToUser psu
-            on psu.space_id = ps.id and psu.active = 1 and psu.booking_date = cast(@booking_date as date)
-            left join dbo.[User] us1
-            on us1.id = psu.user_id
-          left join cte_weekday_exclution_filter wef
-          on ps.id = wef.space_id
-          left join dbo.[User] us2
-            on us2.id = wef.user_id
-            where ps.active = 1`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset']);
-      },
-    );
+        end as type
+        from Spaces.ParkingSpace ps
+        left join Spaces.ParkingSpaceToUser psu
+        on psu.space_id = ps.id and psu.active = TRUE and psu.booking_date = CAST(${selected_date} AS DATE)
+        left join Users.User us1
+        on us1.id = psu.user_id
+        left join cte_weekday_exclution_filter wef
+        on ps.id = wef.space_id
+        left join Users.User us2
+        on us2.id = wef.user_id
+        where ps.active = TRUE;
+      `
+      const result = await sql.query(query);
+      res.send(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const getBookingWeekdayConfiguration = (app, sql) => {
-  app.get('/getBookingWeekdayConfiguration', function (req, res) {
+  app.get('/getBookingWeekdayConfiguration', async function (req, res) {
     const weekday: string = req.query.weekday;
-    const request = new sql.Request();
-
-    request.query(
-      `select ps.space_number, us.username, us.[name], us.surname
-      from dbo.ParkingSpace ps
-      left join dbo.WeekdayParkingSpaceToUser psu
-      on psu.space_id = ps.id and psu.active = 1 and psu.working_day_id = (select id from dbo.WorkingDay where weekday = '${weekday}')
-      left join dbo.[User] us
+    try {
+      const query = `
+      select ps.space_number, us.username, us.name, us.surname
+      from Spaces.ParkingSpace ps
+      left join Spaces.WeekdayParkingSpaceToUser psu
+      on psu.space_id = ps.id and psu.active = TRUE and psu.working_day_id = (select id from Days.WorkingDay where weekday = '${weekday}')
+      left join Users.User us
       on us.id = psu.user_id
-      where ps.active = 1`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset']);
-      },
-    );
+      where ps.active = TRUE;
+      `
+      const result = await sql.query(query);
+      res.send(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
+// If it should return a value, then write it without DO loop.
 const bookParkingSpace = (app, sql) => {
-  app.get('/bookParkingSpace', function (req, res) {
+  app.get('/bookParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const selected_date: string = req.query.selected_date;
-    const request = new sql.Request();
-
-    request.query(
-      `declare @space_id smallint = (select id from dbo.ParkingSpace where space_number = '${space_number}')
-      declare @user_id int = (select id from dbo.[User] where username = '${username}')
-
-      if (select 1 from dbo.ParkingSpaceToUser where space_id = @space_id and booking_date = '${selected_date}' and active = 1) is null
-      begin
-
-      insert into dbo.ParkingSpaceToUser (space_id, user_id, booking_date, active)
-      values (@space_id, @user_id, '${selected_date}', 1)
+    try {
+      const query = `
+      DO $$
+      DECLARE
+          space_id_var SMALLINT;
+          user_id_var INT;
+          status INT;
+      BEGIN
+          SELECT id INTO space_id_var
+          FROM Spaces.ParkingSpace
+          WHERE space_number = '${space_number}';
+          
+          SELECT id INTO user_id_var
+          FROM Users.User
+          WHERE username = '${username}';
       
-      select 1 as status
-      
-      end
-      else
-      begin
-      
-      select 0 as status
-      
-      end`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset'][0]);
-      },
-    );
+          IF NOT EXISTS (
+              SELECT 1
+              FROM Spaces.ParkingSpaceToUser
+              WHERE space_id = space_id_var
+                  AND booking_date = '${selected_date}'
+                  AND active = TRUE
+          ) THEN
+              INSERT INTO Spaces.ParkingSpaceToUser (space_id, user_id, booking_date, active)
+              VALUES (space_id_var, user_id_var, '${selected_date}', TRUE);
+              status := 1;
+          ELSE
+              status := 0;
+          END IF;
+          
+          RAISE NOTICE 'Status: %', status;
+      END $$;
+      `
+      const result = await sql.query(query);
+      res.send(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const getBookingConfigurationAdministration = (app, sql) => {
-  app.get('/getBookingConfigurationAdministration', function (req, res) {
-    const request = new sql.Request();
-
-    request.query(
-      `select space_number
-      from dbo.ParkingSpace
-      where active = 1`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset']);
-      },
-    );
+  app.get('/getBookingConfigurationAdministration', async function (req, res) {
+    try {
+      const query = `
+      select space_number
+      from Spaces.ParkingSpace
+      where active = TRUE;
+      `
+      const result = await sql.query(query);
+      res.send(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const releaseParkingSpace = (app, sql) => {
-  app.get('/releaseParkingSpace', function (req, res) {
+  app.get('/releaseParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const selected_date: string = req.query.selected_date;
     const type: string = req.query.type;
-    const request = new sql.Request();
     if (type === 'Day') {
-      request.query(
-        `update psu
-        set active = 0
-        from dbo.ParkingSpaceToUser psu
-        inner join dbo.[User] us
+      try {
+        const query = `
+        update psu
+        set active = FALSE
+        from Spaces.ParkingSpaceToUser psu
+        inner join Users.User us
         on us.id = psu.user_id
-        inner join dbo.ParkingSpace ps
+        inner join Spaces.ParkingSpace ps
         on ps.id = psu.space_id
-        where us.username = '${username}' and ps.space_number = '${space_number}' and psu.booking_date = '${selected_date}'`,
-        function (err, recordset) {
-          if (err) console.log(err);
-          res.send(true);
-        },
-      );
+        where us.username = '${username}' and ps.space_number = '${space_number}' and psu.booking_date = '${selected_date}';
+        `
+        await sql.query(query);
+        res.send(true);
+      } catch (error) {
+          console.error(error);
+          res.status(500).send('Internal server error');
+      }
     } else {
-      request.query(
-        `declare @space_id smallint = (select id from dbo.ParkingSpace where space_number = '${space_number}')
-        declare @user_id int = (select id from dbo.[User] where username = '${username}')
+      try {
+        const query = `
+        DO $$
+        DECLARE
+            space_id SMALLINT;
+            user_id INT;
+            status INT;
+        BEGIN
+        select id into space_id from Spaces.ParkingSpace where space_number = '${space_number}'
+        select id into user_id from Users.User where username = '${username}'
   
-        if (select 1 from dbo.WeekdayExclusionParkingSpaceToUser where space_id = @space_id and booking_date = '${selected_date}' and active = 1) is null
-        begin
+        IF NOT EXISTS (select 1 from Spaces.WeekdayExclusionParkingSpaceToUser where space_id = space_id and booking_date = '${selected_date}' and active = TRUE)
+        THEN
   
-        insert into dbo.WeekdayExclusionParkingSpaceToUser (space_id, user_id, booking_date, active)
-        values (@space_id, @user_id, '${selected_date}', 1)
+        insert into Spaces.WeekdayExclusionParkingSpaceToUser (space_id, user_id, booking_date, active)
+        values (space_id, user_id, '${selected_date}', TRUE)
         
-        select 1 as status
-        
-        end
-        else
-        begin
-        
-        select 0 as status
-        
-        end`,
-        function (err, recordset) {
-          if (err) console.log(err);
-          res.send(true);
-        },
-      );
+        END IF;
+        END $$;
+        `
+        await sql.query(query);
+        res.send(true);
+      } catch (error) {
+          console.error(error);
+          res.status(500).send('Internal server error');
+      }
     }
   });
 };
