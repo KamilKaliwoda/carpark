@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function validateLogin(props: any) {
   const username = (document.getElementById('username') as HTMLInputElement).value;
-  let password = (document.getElementById('password') as HTMLInputElement).value;
+  const password = (document.getElementById('password') as HTMLInputElement).value;
   if (username === null || password === null) {
     alert('Invalid login or password');
     return;
@@ -22,9 +22,9 @@ export async function validateLogin(props: any) {
     return;
   }
   localStorage.setItem('currentUsername', username);
-  localStorage.setItem('currentName', user_data[0]['name']);
-  localStorage.setItem('currentSurname', user_data[0]['surname']);
-  localStorage.setItem('role', user_data[0]['role']);
+  localStorage.setItem('currentName', user_data['name']);
+  localStorage.setItem('currentSurname', user_data['surname']);
+  localStorage.setItem('role', user_data['role']);
   props.onFormSwitch('booking');
 }
 

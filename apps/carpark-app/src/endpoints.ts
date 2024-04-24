@@ -117,7 +117,7 @@ const changeUserPassword = (app, sql) => {
         const query = `
         update Users.User
         set password = '${hash}'
-        where username = '${username};'
+        where username = '${username}';
         `
         await sql.query(query);
         res.send(true);
@@ -134,12 +134,12 @@ const getBookingConfiguration = (app, sql) => {
     const selected_date: string = req.query.selected_date;
     try {
       const query = `
-      WITH cte_weekday_exclution_filter as (
+      WITH cte_weekday_exclusion_filter as (
         select wps.id, wps.space_id, wps.user_id, wps.working_day_id, wps.last_update, wps.active
         from Spaces.WeekdayParkingSpaceToUser wps
         left join Spaces.WeekdayExclusionParkingSpaceToUser weps
-        on weps.space_id = wps.space_id and weps.active = TRUE and weps.booking_date = CAST(${selected_date} AS DATE)
-        where wps.active = TRUE and wps.working_day_id = (select id from Days.WorkingDay where weekday = TO_CHAR(CAST(${selected_date} AS DATE), 'Day')) and weps.id is NULL
+        on weps.space_id = wps.space_id and weps.active = TRUE and weps.booking_date = CAST('${selected_date}' AS DATE)
+        where wps.active = TRUE and wps.working_day_id = (select id from Days.WorkingDay where weekday = TRIM(TO_CHAR(CAST('${selected_date}' AS DATE), 'Day'))) and weps.id is NULL
       )
       
       select ps.space_number,
@@ -153,10 +153,10 @@ const getBookingConfiguration = (app, sql) => {
         end as type
         from Spaces.ParkingSpace ps
         left join Spaces.ParkingSpaceToUser psu
-        on psu.space_id = ps.id and psu.active = TRUE and psu.booking_date = CAST(${selected_date} AS DATE)
+        on psu.space_id = ps.id and psu.active = TRUE and psu.booking_date = CAST('${selected_date}' AS DATE)
         left join Users.User us1
         on us1.id = psu.user_id
-        left join cte_weekday_exclution_filter wef
+        left join cte_weekday_exclusion_filter wef
         on ps.id = wef.space_id
         left join Users.User us2
         on us2.id = wef.user_id
@@ -203,14 +203,14 @@ const bookParkingSpace = (app, sql) => {
       const query = `
       DO $$
       DECLARE
-          space_id_var SMALLINT;
+          space_id_var INT;
           user_id_var INT;
           status INT;
       BEGIN
           SELECT id INTO space_id_var
           FROM Spaces.ParkingSpace
           WHERE space_number = '${space_number}';
-          
+      
           SELECT id INTO user_id_var
           FROM Users.User
           WHERE username = '${username}';
@@ -219,16 +219,17 @@ const bookParkingSpace = (app, sql) => {
               SELECT 1
               FROM Spaces.ParkingSpaceToUser
               WHERE space_id = space_id_var
-                  AND booking_date = '${selected_date}'
-                  AND active = TRUE
+              AND booking_date = '${selected_date}'
+              AND active = TRUE
           ) THEN
               INSERT INTO Spaces.ParkingSpaceToUser (space_id, user_id, booking_date, active)
               VALUES (space_id_var, user_id_var, '${selected_date}', TRUE);
+      
               status := 1;
           ELSE
               status := 0;
           END IF;
-          
+      
           RAISE NOTICE 'Status: %', status;
       END $$;
       `
@@ -267,14 +268,14 @@ const releaseParkingSpace = (app, sql) => {
     if (type === 'Day') {
       try {
         const query = `
-        update psu
-        set active = FALSE
-        from Spaces.ParkingSpaceToUser psu
-        inner join Users.User us
-        on us.id = psu.user_id
-        inner join Spaces.ParkingSpace ps
-        on ps.id = psu.space_id
-        where us.username = '${username}' and ps.space_number = '${space_number}' and psu.booking_date = '${selected_date}';
+        UPDATE Spaces.ParkingSpaceToUser psu
+        SET active = FALSE
+        FROM Users.User us, Spaces.ParkingSpace ps
+        WHERE psu.user_id = us.id
+        AND psu.space_id = ps.id
+        AND us.username = '${username}'
+        AND ps.space_number = '${space_number}'
+        AND psu.booking_date = '${selected_date}';
         `
         await sql.query(query);
         res.send(true);
@@ -287,18 +288,18 @@ const releaseParkingSpace = (app, sql) => {
         const query = `
         DO $$
         DECLARE
-            space_id SMALLINT;
-            user_id INT;
+            space_id_var SMALLINT;
+            user_id_var INT;
             status INT;
         BEGIN
-        select id into space_id from Spaces.ParkingSpace where space_number = '${space_number}'
-        select id into user_id from Users.User where username = '${username}'
+        select id into space_id_var from Spaces.ParkingSpace where space_number = '${space_number}';
+        select id into user_id_var from Users.User where username = '${username}';
   
-        IF NOT EXISTS (select 1 from Spaces.WeekdayExclusionParkingSpaceToUser where space_id = space_id and booking_date = '${selected_date}' and active = TRUE)
+        IF NOT EXISTS (select 1 from Spaces.WeekdayExclusionParkingSpaceToUser where space_id = space_id_var and booking_date = '${selected_date}' and active = TRUE)
         THEN
   
         insert into Spaces.WeekdayExclusionParkingSpaceToUser (space_id, user_id, booking_date, active)
-        values (space_id, user_id, '${selected_date}', TRUE)
+        values (space_id_var, user_id_var, '${selected_date}', TRUE);
         
         END IF;
         END $$;
@@ -314,123 +315,142 @@ const releaseParkingSpace = (app, sql) => {
 };
 
 const bookWeekdayParkingSpace = (app, sql) => {
-  app.get('/bookWeekdayParkingSpace', function (req, res) {
+  app.get('/bookWeekdayParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const weekday: string = req.query.weekday;
-    const request = new sql.Request();
+    try {
+      const query = `
+      DO $$
+      DECLARE
+          status INT;
+      BEGIN
+      IF NOT EXISTS (select 1 from Spaces.WeekdayParkingSpaceToUser where space_id = (select id from Spaces.ParkingSpace where space_number = '${space_number}')
+      and working_day_id = (select id from Days.WorkingDay where weekday = '${weekday}') and active = TRUE)
+      THEN
 
-    request.query(
-      `declare @space_id smallint = (select id from dbo.ParkingSpace where space_number = '${space_number}')
-      declare @user_id int = (select id from dbo.[User] where username = '${username}')
-      declare @weekday_id smallint = (select id from dbo.WorkingDay where weekday = '${weekday}')
+      insert into Spaces.WeekdayParkingSpaceToUser (space_id, user_id, working_day_id, active)
+      select (select id from Spaces.ParkingSpace where space_number = '${space_number}')
+      ,(select id from Users.User where username = '${username}')
+      ,(select id from Days.WorkingDay where weekday = '${weekday}')
+      ,TRUE;
+      
+      status := 1;
 
-      if (select 1 from dbo.WeekdayParkingSpaceToUser where space_id = @space_id 
-      and working_day_id = @weekday_id and active = 1) is null
-      begin
+      ELSE
 
-      insert into dbo.WeekdayParkingSpaceToUser (space_id, user_id, working_day_id, active)
-      values (@space_id, @user_id, @weekday_id, 1)
+      status := 0;
       
-      select 1 as status
-      
-      end
-      else
-      begin
-      
-      select 0 as status
-      
-      end`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset['recordset'][0]);
-      },
-    );
+      END IF;
+      RAISE NOTICE 'Status: %', status;
+      END $$;
+      `
+      const result = await sql.query(query);
+      res.send(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const releaseWeekdayParkingSpace = (app, sql) => {
-  app.get('/releaseWeekdayParkingSpace', function (req, res) {
+  app.get('/releaseWeekdayParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const weekday: string = req.query.weekday;
-    const request = new sql.Request();
-
-    request.query(
-      `update psu
-      set active = 0
-      from dbo.WeekdayParkingSpaceToUser psu
-      inner join dbo.[User] us
-      on us.id = psu.user_id
-      inner join dbo.ParkingSpace ps
-      on ps.id = psu.space_id
-      where us.username = '${username}' and ps.space_number = '${space_number}' and psu.working_day_id = (select id from dbo.WorkingDay where weekday = '${weekday}')`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(true);
-      },
-    );
+    try {
+      const query = `
+      update Spaces.WeekdayParkingSpaceToUser psu
+      set active = FALSE
+      FROM Users.User us, Spaces.ParkingSpace ps
+      WHERE psu.user_id = us.id
+      AND psu.space_id = ps.id
+      AND us.username = '${username}'
+      AND ps.space_number = '${space_number}' 
+      AND psu.working_day_id = (select id from Days.WorkingDay where weekday = '${weekday}');
+      `
+      await sql.query(query);
+      res.send(true);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const activateParkingSpace = (app, sql) => {
-  app.get('/activateParkingSpace', function (req, res) {
+  app.get('/activateParkingSpace', async function (req, res) {
     const spaceNumber: number = req.query.spaceNumber;
-    const request = new sql.Request();
-    request.query(
-      `declare @space_number int = ${spaceNumber}
-      if exists (select 1 from dbo.ParkingSpace where space_number = @space_number)
-      begin
-        update dbo.ParkingSpace
-        set active = 1
-        where space_number = @space_number
-      end 
-      else 
-      begin
-        insert into dbo.ParkingSpace (space_number, active)
-        values (@space_number, 1)
-      end`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(true);
-      },
-    );
+    try {
+      const query = `
+      DO $$
+      DECLARE
+          space_exists BOOLEAN;
+      BEGIN
+          SELECT 1 INTO space_exists
+          FROM Spaces.ParkingSpace
+          WHERE space_number = ${spaceNumber};
+          
+          IF space_exists THEN
+              UPDATE Spaces.ParkingSpace
+              SET active = TRUE
+              WHERE space_number = ${spaceNumber};
+          ELSE
+              INSERT INTO Spaces.ParkingSpace (space_number, active)
+              VALUES (${spaceNumber}, TRUE);
+          END IF;
+      END $$;
+      `
+      await sql.query(query);
+      res.send(true);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };
 
 const deactivateParkingSpace = (app, sql) => {
-  app.get('/deactivateParkingSpace', function (req, res) {
+  app.get('/deactivateParkingSpace', async function (req, res) {
     const spaceNumber: number = req.query.space_number;
-    const request = new sql.Request();
-    request.query(
-      `SET XACT_ABORT ON
-      SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
-      BEGIN TRANSACTION
-      
-      
-      declare @space_id smallint = (select id from dbo.ParkingSpace where space_number = ${spaceNumber})
+    try {
+      const query = `
+      BEGIN;
 
-      update dbo.ParkingSpace
-      set active = 0
-      where id = @space_id
-      
-      update dbo.ParkingSpaceToUser
-      set active = 0
-      where space_id = @space_id
-      
-      update dbo.WeekdayParkingSpaceToUser
-      set active = 0
-      where space_id = @space_id
-      
-      update dbo.WeekdayExclusionParkingSpaceToUser
-      set active = 0
-      where space_id = @space_id
-      
-      COMMIT TRANSACTION`,
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(true);
-      },
-    );
+      SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+      UPDATE Spaces.ParkingSpace
+      SET active = FALSE
+      WHERE id = (SELECT id 
+        FROM Spaces.ParkingSpace
+        WHERE space_number = ${spaceNumber});
+
+      UPDATE Spaces.ParkingSpaceToUser
+      SET active = FALSE
+      WHERE space_id = (SELECT id 
+        FROM Spaces.ParkingSpace
+        WHERE space_number = ${spaceNumber});
+
+      UPDATE Spaces.WeekdayParkingSpaceToUser
+      SET active = FALSE
+      WHERE space_id = (SELECT id 
+        FROM Spaces.ParkingSpace
+        WHERE space_number = ${spaceNumber});
+
+      UPDATE Spaces.WeekdayExclusionParkingSpaceToUser
+      SET active = FALSE
+      WHERE space_id = (SELECT id 
+        FROM Spaces.ParkingSpace
+        WHERE space_number = ${spaceNumber});
+
+      COMMIT;
+      `
+      await sql.query(query);
+      res.send(true);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
   });
 };

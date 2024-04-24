@@ -103,7 +103,6 @@ export function SelectSpaceNumber(props: any) {
       alert('This space already exists');
       return;
     }
-    console.log(spaceNumber);
     axios
     .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/activateParkingSpace', {
       params: {

@@ -39,7 +39,6 @@ export const BookingContent = (props: any): JSX.Element => {
     // Generate the content using the bookingData
     const children: Array<JSX.Element> = [];
     let isAlreadyBooked = false;
-    console.log(bookingMode !== 'Day');
     bookingData.forEach((element) => {
       if (element['username'] === localStorage.getItem('currentUsername') && (localStorage.getItem('role') !== 'admin' || bookingMode === 'Weekday')) {
         isAlreadyBooked = true;
