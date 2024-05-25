@@ -1,6 +1,6 @@
 const { NxWebpackPlugin } = require('@nx/webpack');
 const { NxReactWebpackPlugin } = require('@nx/react');
-const { join } = require('path');
+const { join, resolve } = require('path');
 const { EnvironmentPlugin } = require('webpack');
 
 module.exports = {
@@ -9,6 +9,16 @@ module.exports = {
   },
   devServer: {
     port: 8131,
+    hot: false,
+    allowedHosts: ['carpark.site', 'www.carpark.site'],
+    compress: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    https: {
+      key: resolve(__dirname, '../../certs/private.key'),
+      cert: resolve(__dirname, '../../certs/certificate.crt')
+    }
   },
   plugins: [
     new NxWebpackPlugin({

@@ -13,6 +13,12 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
   },
+  devServer: {
+    port: 8131,
+    hot: false,
+    allowedHosts: ['carpark.site', 'www.carpark.site'],
+    compress: true
+  },
   module: {
     rules: [
       {

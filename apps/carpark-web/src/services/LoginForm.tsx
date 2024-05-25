@@ -8,7 +8,7 @@ export async function validateLogin(props: any) {
     return;
   }
   const user_data = await axios
-    .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/validateLogIn', {
+    .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/validateLogIn', {
       params: {
         username: username,
         password: password,

@@ -114,11 +114,7 @@
               "executor": "@nx/js:node",
               "defaultConfiguration": "development",
               "options": {
-                "buildTarget": "carpark-app:build",
-                "host": "dev.local",
-                "ssl": true,
-                "sslKey": "./certs/dev.local+1-key.pem",
-                "sslCert": "./certs/dev.local+1.pem"
+                "buildTarget": "carpark-app:build"
               },
               "configurations": {
                 "development": {

@@ -29,7 +29,7 @@ export class Endpoints {
 }
 
 const validateLogIn = (app, sql) => {
-  app.get('/validateLogIn', async function (req, res) {
+  app.get('/api/validateLogIn', async function (req, res) {
     const username: string = req.query.username;
     const password: string = req.query.password;
     try {
@@ -60,7 +60,7 @@ const validateLogIn = (app, sql) => {
 };
 
 const checkIfLoginExists = (app, sql) => {
-  app.get('/checkIfLoginExists', async function (req, res) {
+  app.get('/api/checkIfLoginExists', async function (req, res) {
     const username: string = req.query.username;
     try {
       const query = `
@@ -78,7 +78,7 @@ const checkIfLoginExists = (app, sql) => {
 };
 
 const tryInsertingNewUser = (app, sql) => {
-  app.get('/tryInsertingNewUser', function (req, res) {
+  app.get('/api/tryInsertingNewUser', function (req, res) {
     const username: string = req.query.username;
     const password: string = req.query.password;
     const name: string = req.query.name;
@@ -109,7 +109,7 @@ const tryInsertingNewUser = (app, sql) => {
 };
 
 const changeUserPassword = (app, sql) => {
-  app.get('/changeUserPassword', function (req, res) {
+  app.get('/api/changeUserPassword', function (req, res) {
     const username: string = req.query.username;
     const password: string = req.query.password;
     hash(password, 10, async function(err, hash) {
@@ -130,7 +130,7 @@ const changeUserPassword = (app, sql) => {
 };
 
 const getBookingConfiguration = (app, sql) => {
-  app.get('/getBookingConfiguration', async function (req, res) {
+  app.get('/api/getBookingConfiguration', async function (req, res) {
     const selected_date: string = req.query.selected_date;
     try {
       const query = `
@@ -172,7 +172,7 @@ const getBookingConfiguration = (app, sql) => {
 };
 
 const getBookingWeekdayConfiguration = (app, sql) => {
-  app.get('/getBookingWeekdayConfiguration', async function (req, res) {
+  app.get('/api/getBookingWeekdayConfiguration', async function (req, res) {
     const weekday: string = req.query.weekday;
     try {
       const query = `
@@ -195,7 +195,7 @@ const getBookingWeekdayConfiguration = (app, sql) => {
 
 // If it should return a value, then write it without DO loop.
 const bookParkingSpace = (app, sql) => {
-  app.get('/bookParkingSpace', async function (req, res) {
+  app.get('/api/bookParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const selected_date: string = req.query.selected_date;
@@ -243,7 +243,7 @@ const bookParkingSpace = (app, sql) => {
 };
 
 const getBookingConfigurationAdministration = (app, sql) => {
-  app.get('/getBookingConfigurationAdministration', async function (req, res) {
+  app.get('/api/getBookingConfigurationAdministration', async function (req, res) {
     try {
       const query = `
       select space_number
@@ -260,7 +260,7 @@ const getBookingConfigurationAdministration = (app, sql) => {
 };
 
 const releaseParkingSpace = (app, sql) => {
-  app.get('/releaseParkingSpace', async function (req, res) {
+  app.get('/api/releaseParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const selected_date: string = req.query.selected_date;
@@ -315,7 +315,7 @@ const releaseParkingSpace = (app, sql) => {
 };
 
 const bookWeekdayParkingSpace = (app, sql) => {
-  app.get('/bookWeekdayParkingSpace', async function (req, res) {
+  app.get('/api/bookWeekdayParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const weekday: string = req.query.weekday;
@@ -355,7 +355,7 @@ const bookWeekdayParkingSpace = (app, sql) => {
 };
 
 const releaseWeekdayParkingSpace = (app, sql) => {
-  app.get('/releaseWeekdayParkingSpace', async function (req, res) {
+  app.get('/api/releaseWeekdayParkingSpace', async function (req, res) {
     const space_number: string = req.query.space_number;
     const username: string = req.query.username;
     const weekday: string = req.query.weekday;
@@ -380,7 +380,7 @@ const releaseWeekdayParkingSpace = (app, sql) => {
 };
 
 const activateParkingSpace = (app, sql) => {
-  app.get('/activateParkingSpace', async function (req, res) {
+  app.get('/api/activateParkingSpace', async function (req, res) {
     const spaceNumber: number = req.query.spaceNumber;
     try {
       const query = `
@@ -412,7 +412,7 @@ const activateParkingSpace = (app, sql) => {
 };
 
 const deactivateParkingSpace = (app, sql) => {
-  app.get('/deactivateParkingSpace', async function (req, res) {
+  app.get('/api/deactivateParkingSpace', async function (req, res) {
     const spaceNumber: number = req.query.space_number;
     try {
       const query = `

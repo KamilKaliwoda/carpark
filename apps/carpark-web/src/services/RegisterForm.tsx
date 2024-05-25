@@ -7,7 +7,7 @@ async function checkIfLoginCanBeRegistered(): Promise<boolean> {
   }
 
   const user_data = await axios
-    .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/checkIfLoginExists', {
+    .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/checkIfLoginExists', {
       params: {
         username: username,
       },
@@ -38,7 +38,7 @@ async function tryInsertingNewUser(props: any) {
   }
 
   const operation_success = await axios
-    .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/tryInsertingNewUser', {
+    .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/tryInsertingNewUser', {
       params: {
         username: username,
         password: password,

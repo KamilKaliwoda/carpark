@@ -7,16 +7,22 @@ import { db_config, client_config } from './config/config';
 import { Endpoints } from './endpoints';
 import cors from 'cors';
 import { resolve } from 'path';
+import https from 'https';
+import fs from 'fs';
 
-//carpark();
 
 dotenv.config();
+// const httpsOptions = {
+//   key: fs.readFileSync(resolve(__dirname, '../../../../../../certs/private.pem')),
+//   cert: fs.readFileSync(resolve(__dirname, '../../../../../../certs/certificate.pem'))
+// };
+
 
 export const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:8131',
+    origin: 'https://www.carpark.site', 'https://carpark.site', 'https://www.carpark.site.', 'https://carpark.site'
   }),
 );
 
@@ -32,5 +38,9 @@ const postUpdate = new PostUpdate(app, sql);
 const endpoints = new Endpoints(app, sql);
 
 const server = app.listen(Number(process.env.SERVER_PORT), '0.0.0.0', () => {
-  console.log('Server running...');
+  console.log(`HTTP server running on port ${process.env.SERVER_PORT}...`);
 });
+
+// const server = https.createServer(httpsOptions, app).listen(Number(process.env.SERVER_PORT), '0.0.0.0', () => {
+//   console.log(`HTTPS server running on port ${process.env.SERVER_PORT}...`);
+// });

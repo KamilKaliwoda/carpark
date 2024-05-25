@@ -30,7 +30,6 @@ export const BookingContent = (props: any): JSX.Element => {
           console.error(error);
         });
     }, [date_format, weekday, refreshBookingContent]);
-  
     if (bookingData === null) {
       // Data is still being fetched
       return <div>Loading...</div>;

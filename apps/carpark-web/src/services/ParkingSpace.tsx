@@ -4,7 +4,7 @@ import { BookingData } from '../types/BookingTypes';
 export function SelectSpaceNumber(props: any) {
       if (props.bookingMode === 'Day') {
         axios
-        .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/bookParkingSpace', {
+        .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/bookParkingSpace', {
           params: {
             space_number: props.space_number,
             username: localStorage.getItem('currentUsername'),
@@ -22,7 +22,7 @@ export function SelectSpaceNumber(props: any) {
         });
       } else {
         axios
-        .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/bookWeekdayParkingSpace', {
+        .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/bookWeekdayParkingSpace', {
           params: {
             space_number: props.space_number,
             username: localStorage.getItem('currentUsername'),
@@ -44,7 +44,7 @@ export function SelectSpaceNumber(props: any) {
   export function ReleaseSpaceNumber(props: any) {
     if (props.bookingMode === 'Day') {
       axios
-      .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/releaseParkingSpace', {
+      .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/releaseParkingSpace', {
         params: {
           space_number: props.space_number,
           username: localStorage.getItem('currentUsername'),
@@ -60,7 +60,7 @@ export function SelectSpaceNumber(props: any) {
       });
     } else {
       axios
-      .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/releaseWeekdayParkingSpace', {
+      .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/releaseWeekdayParkingSpace', {
         params: {
           space_number: props.space_number,
           username: localStorage.getItem('currentUsername'),
@@ -79,7 +79,7 @@ export function SelectSpaceNumber(props: any) {
   export function DeactivateSpaceNumber(props: any) {
     if (confirm("Are you sure, you want to deactivate this space? \nThis operation will deactivate all bookings related to this space.")) {
       axios
-      .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/deactivateParkingSpace', {
+      .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/deactivateParkingSpace', {
         params: {
           space_number: props.space_number,
         },
@@ -104,7 +104,7 @@ export function SelectSpaceNumber(props: any) {
       return;
     }
     axios
-    .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/activateParkingSpace', {
+    .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/activateParkingSpace', {
       params: {
         spaceNumber: spaceNumber,
       },

@@ -1,6 +1,15 @@
 version: '1.0'
 
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - 443:443
+    restart: always
+    expose: 
+      - 443
   carpark-app:
     build:
       context: .
@@ -10,8 +19,10 @@ services:
       - 8132:8132
     expose:
       - 8132
+    depends_on:
+      - nginx
     env_file:
-      - ./apps/carpark-app/.env.docker
+      - ./apps/carpark-app/.env
     command: node ./main.js
 
   carpark-web:
@@ -25,7 +36,8 @@ services:
       - 8131
     depends_on:
       - carpark-app
+      - nginx
     env_file:
-      - ./apps/carpark-web/.env.docker
+      - ./apps/carpark-web/.env
     command: npm start
   

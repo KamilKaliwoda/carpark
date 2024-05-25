@@ -8,17 +8,13 @@ export async function getBookingData(selected_date: string, weekday: string, boo
     }
     try {
       const response = await axios.get(
-        'http://' +
-          String(process.env.API_IP) +
-          ':' +
-          String(process.env.API_PORT) +
-          '/getBookingConfiguration',
+        'https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/getBookingConfiguration',
         {
           params: {
             selected_date: selected_date,
           },
         },
-      );
+      )
       return response.data;
     } catch (error) {
       console.error(error);
@@ -31,11 +27,11 @@ export async function getBookingData(selected_date: string, weekday: string, boo
     }
     try {
       const response = await axios.get(
-        'http://' +
+        'https://' +
           String(process.env.API_IP) +
           ':' +
           String(process.env.API_PORT) +
-          '/getBookingWeekdayConfiguration',
+          '/api/getBookingWeekdayConfiguration',
         {
           params: {
             weekday: weekday,
@@ -53,11 +49,11 @@ export async function getBookingData(selected_date: string, weekday: string, boo
 export async function getBookingDataAdministration() {
   try {
     const response = await axios.get(
-      'http://' +
+      'https://' +
         String(process.env.API_IP) +
         ':' +
         String(process.env.API_PORT) +
-        '/getBookingConfigurationAdministration',
+        '/api/getBookingConfigurationAdministration',
       {
         params: {},
       },

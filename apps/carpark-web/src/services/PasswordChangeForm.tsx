@@ -11,7 +11,7 @@ async function checkUserDataCorrectness(): Promise<boolean> {
     }
   
     const user_data = await axios
-    .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/validateLogIn', {
+    .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/validateLogIn', {
       params: {
         username: username,
         password: password,
@@ -38,7 +38,7 @@ export async function changePassword(props: any) {
       const username = (document.getElementById('username') as HTMLInputElement).value;
       const password = (document.getElementById('password') as HTMLInputElement).value;
       const operation_success = await axios
-        .get('http://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/changeUserPassword', {
+        .get('https://' + String(process.env.API_IP) + ':' + String(process.env.API_PORT) + '/api/changeUserPassword', {
           params: {
             username: username,
             password: password,
