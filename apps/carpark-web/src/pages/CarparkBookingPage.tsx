@@ -69,6 +69,7 @@ export const CarparkBookingPage = (props: any): JSX.Element => {
         <div className="DateContainer">
           {bookingMode === 'Day' && !administrationMode ? (
             <DatePicker
+              wrapperClassName="DatePicker"
               id="DatePicker"
               minDate={start_date}
               maxDate={max_date}

@@ -13,19 +13,22 @@
 
 .SpaceNumber {
     color:black;
-    font-size:xx-large;
+    font-size:5vh;
 }
 
 .booking-btn {
     background-color: white;
     color: black;
-    font-size: medium;
+    font-size: 2.5vh;
     cursor: pointer;
     border: none;
     padding: 20px;
     border-radius: 10px;
     border-color: black;
     border-style: solid;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 .ParkingSpaceBusy {
@@ -76,47 +79,56 @@
 .release-btn {
     background-color: white;
     color: black;
-    font-size: medium;
+    font-size: 2.5vh;
     cursor: pointer;
     border: none;
     padding: 15px;
     border-radius: 10px;
     border-color: black;
     border-style: solid;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 .deactivate-btn {
     background-color: white;
     color: black;
-    font-size: medium;
+    font-size: 2.5vh;
     cursor: pointer;
     border: none;
     padding: 10px;
     border-radius: 10px;
     border-color: black;
     border-style: solid;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 .activate-btn {
     background-color: white;
     color: black;
-    font-size: medium;
+    font-size: 2.5vh;
     cursor: pointer;
     border: none;
     padding: 10px;
     border-radius: 10px;
     border-color: black;
     border-style: solid;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 .Name {
     color:black;
-    font-size: large;
+    font-size: 3vh;
 }
 
 .Surname {
     color:black;
-    font-size: large;
+    font-size: 3vh;
 }
 
 .SpaceNumberInput {

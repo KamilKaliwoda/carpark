@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import React from 'react';
+import './styles/Global.css';
 
 
 import { CarparkBookingPage } from './pages/CarparkBookingPage';
@@ -13,7 +14,7 @@ export default function Root(props: any) {
     setCurrentForm(formName);
   };
   return (
-    <div>
+    <div className='root'>
       {currentForm === 'login' ? (
         <LoginForm onFormSwitch={toggleForm} />
       ) : currentForm === 'register' ? (

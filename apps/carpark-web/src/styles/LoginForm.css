@@ -1,15 +1,7 @@
-.StartPage {
-    height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-image: linear-gradient(79deg, #7439db, #c66fbc 48%, #F79440);
-}
 
 .coverLogin {
-    width: 30em;
-    height: 26em;
+    width: 90%;
+    height: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -17,8 +9,4 @@
     justify-content: space-around;
     border-radius: 1px;
     border: white;
-}
-
-.title {
-    text-align: center;
 }

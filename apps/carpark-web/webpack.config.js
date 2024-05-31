@@ -9,16 +9,27 @@ module.exports = {
   },
   devServer: {
     port: 8131,
-    hot: false,
+    hot: true,
+    liveReload: true,
+    host: "127.0.0.1",
+    webSocketServer: false,
     allowedHosts: ['carpark.site', 'www.carpark.site'],
     compress: true,
     headers: {
       'Access-Control-Allow-Origin': '*'
-    },
-    https: {
-      key: resolve(__dirname, '../../certs/private.key'),
-      cert: resolve(__dirname, '../../certs/certificate.crt')
     }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader', // Injects CSS into the DOM
+          'css-loader' // Resolves CSS imports
+        ]
+      },
+      // Other rules for processing JavaScript, TypeScript, etc.
+    ]
   },
   plugins: [
     new NxWebpackPlugin({

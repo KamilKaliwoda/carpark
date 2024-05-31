@@ -22,7 +22,7 @@ services:
     depends_on:
       - nginx
     env_file:
-      - ./apps/carpark-app/.env
+      - ./apps/carpark-app/.env.docker
     command: node ./main.js
 
   carpark-web:
