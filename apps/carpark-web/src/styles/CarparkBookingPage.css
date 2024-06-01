@@ -6,15 +6,18 @@
 
 .BookingPageHeader {
     width: 100%;
-    height: 15%;
+    height: 20%;
     align-items: center;
     justify-content: center;
+    flex-direction: row-reverse;
     display: flex;
     background-color: #7439db;
+    flex-wrap: wrap;
 }
 
 .DateContainer {
     width: 33%;
+    min-width: 300px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,17 +25,15 @@
 
 .ModeContainer {
     width: 33%;
+    min-width: 300px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .UserInfoContainer {
     width: 33%;
-}
-
-.logout-btn {
-
+    min-width: 300px;
 }
 
 .UserData {
@@ -49,13 +50,6 @@
     display: inline-block;
 }
 
-#DatePicker {
-    width: 15vh;
-}
-
-.WeekdayButton {
-}
-
 .WeekdayButtonSelected {
     border: 3px solid black;
 }
@@ -66,10 +60,14 @@
 
 .BookingModeContainer {
     width: 50%;
-    justify-content: left;
+    text-align:center;
 }
 
 .AdministrationModeContainer {
     width: 50%;
-    justify-content: left;
+    text-align:center;
+}
+
+.ModeButton {
+    margin:auto;
 }

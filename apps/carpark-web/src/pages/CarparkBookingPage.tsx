@@ -49,21 +49,23 @@ export const CarparkBookingPage = (props: any): JSX.Element => {
   return (
     <div className="CarparkBookingPage">
       <div className="BookingPageHeader">
-        <div className="ModeContainer">
-          <div className="BookingModeContainer">
-            {bookingMode === 'Day' && !administrationMode ? (
-              <button className='ModeButton' onClick={() => {setMode(BookingMode.Weekday)}}>Show weekday mode</button>
-            ) : ( bookingMode === 'Weekday' && !administrationMode ? (
-              <button className='ModeButton' onClick={() => {setMode(BookingMode.Day)}}>Show day mode</button>
-            ) : null
-            )}
-          </div>
-          <div className="AdministrationModeContainer">
-            {!administrationMode ? (
-              <button className='AdministrationButton' hidden={hideAdministrationButton} onClick={() => {setAdministrationMode(true)}}>Show administration mode</button> 
-            ) : ( 
-              <button className='AdministrationButton' onClick={() => {setAdministrationMode(false)}}>Show booking mode</button> 
-            )}
+      <div className="UserInfoContainer">
+          <div className="UserData">
+            <div className="NameAndSurname">
+              <div id="NameSurnameField">Name and Surname:</div>
+              <label htmlFor="NameSurnameField" className="UserInfoLabel">
+                {localStorage.getItem('currentName')! + ' ' + localStorage.getItem('currentSurname')!}
+              </label>
+            </div>
+            <div className="Username" id="Username">
+              <div id="UsernameField">Username:</div>
+              <label htmlFor="Username" className="UserInfoLabel">
+                {localStorage.getItem('currentUsername')}
+              </label>
+            </div>
+            <button className="logout-btn" onClick={() => LogOutUser(props)}>
+              Log out
+            </button>
           </div>
         </div>
         <div className="DateContainer">
@@ -82,23 +84,21 @@ export const CarparkBookingPage = (props: any): JSX.Element => {
           ) : null
           )}
         </div>
-        <div className="UserInfoContainer">
-          <div className="UserData">
-            <div className="NameAndSurname">
-              <div id="NameSurnameField">Name and Surname:</div>
-              <label htmlFor="NameSurnameField" className="UserInfoLabel">
-                {localStorage.getItem('currentName')! + ' ' + localStorage.getItem('currentSurname')!}
-              </label>
-            </div>
-            <div className="Username" id="Username">
-              <div id="UsernameField">Username:</div>
-              <label htmlFor="Username" className="UserInfoLabel">
-                {localStorage.getItem('currentUsername')}
-              </label>
-            </div>
-            <button className="logout-btn" onClick={() => LogOutUser(props)}>
-              Log out
-            </button>
+        <div className="ModeContainer">
+          <div className="BookingModeContainer">
+            {bookingMode === 'Day' && !administrationMode ? (
+              <button className='ModeButton' onClick={() => {setMode(BookingMode.Weekday)}}>Show weekday mode</button>
+            ) : ( bookingMode === 'Weekday' && !administrationMode ? (
+              <button className='ModeButton' onClick={() => {setMode(BookingMode.Day)}}>Show day mode</button>
+            ) : null
+            )}
+          </div>
+          <div className="AdministrationModeContainer" hidden={hideAdministrationButton}>
+            {!administrationMode ? (
+              <button className='AdministrationButton' hidden={hideAdministrationButton} onClick={() => {setAdministrationMode(true)}}>Show administration mode</button> 
+            ) : ( 
+              <button className='AdministrationButton' onClick={() => {setAdministrationMode(false)}}>Show booking mode</button> 
+            )}
           </div>
         </div>
       </div>
