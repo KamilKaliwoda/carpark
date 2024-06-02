@@ -2,6 +2,7 @@ import express from 'express';
 import { hash, genSalt, compare } from 'bcrypt';
 import _ from 'lodash';
 import sql from 'pg';
+import dotenv from 'dotenv';
 
 export class Endpoints {
   app: Express.Application;
@@ -83,28 +84,33 @@ const tryInsertingNewUser = (app, sql) => {
     const password: string = req.query.password;
     const name: string = req.query.name;
     const surname: string = req.query.surname;
-    hash(password, 10, async function(err, hash) {
-      try {
-        const query = `
-        DO $$
-        DECLARE role_id SMALLINT;
-        BEGIN
-
-        SELECT id INTO role_id 
-        FROM Users.Role 
-        where name = 'user';
-
-        INSERT INTO Users.User (username, name, surname, password, role_id)
-        VALUES ('${username}', '${name}', '${surname}', '${hash}', role_id);
-        END $$;
-        `
-        await sql.query(query);
-        res.send(true);
-      } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal server error');
-      }
-    });
+    const registerCode: string = req.query.register_code;
+    if (registerCode === process.env.REGISTER_CODE) {
+      hash(password, 10, async function(err, hash) {
+        try {
+          const query = `
+          DO $$
+          DECLARE role_id SMALLINT;
+          BEGIN
+  
+          SELECT id INTO role_id 
+          FROM Users.Role 
+          where name = 'user';
+  
+          INSERT INTO Users.User (username, name, surname, password, role_id)
+          VALUES ('${username}', '${name}', '${surname}', '${hash}', role_id);
+          END $$;
+          `
+          await sql.query(query);
+          res.send(true);
+        } catch (error) {
+          console.error(error);
+          res.status(500).send('Internal server error');
+        }
+      });
+    } else {
+      res.send(false);
+    }
   });
 };
 

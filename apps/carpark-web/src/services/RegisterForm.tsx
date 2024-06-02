@@ -28,7 +28,8 @@ async function tryInsertingNewUser(props: any) {
   const password_repeat = (document.getElementById('password-repeat') as HTMLInputElement).value;
   const name = (document.getElementById('name') as HTMLInputElement).value;
   const surname = (document.getElementById('surname') as HTMLInputElement).value;
-  if (password === '' || password_repeat === '' || name === '' || surname === '') {
+  const register_code = (document.getElementById('registerCode') as HTMLInputElement).value;
+  if (password === '' || password_repeat === '' || name === '' || surname === '' || register_code === '') {
     alert('Invalid data');
     return;
   }
@@ -44,6 +45,7 @@ async function tryInsertingNewUser(props: any) {
         password: password,
         name: name,
         surname: surname,
+        register_code: register_code,
       },
     })
     .then((response) => {
@@ -56,6 +58,7 @@ async function tryInsertingNewUser(props: any) {
     (document.getElementById('password-repeat') as HTMLInputElement).value = '';
     (document.getElementById('name') as HTMLInputElement).value = '';
     (document.getElementById('surname') as HTMLInputElement).value = '';
+    (document.getElementById('registerCode') as HTMLInputElement).value = '';
     props.onFormSwitch('login');
   } else {
     alert('Error during adding new user');

@@ -19,6 +19,8 @@ export const RegisterForm = (props: any): JSX.Element => {
           <input type="password" placeholder="password" id="password"></input>
           <label htmlFor="password-repeat">repeat password</label>
           <input type="password" placeholder="password" id="password-repeat"></input>
+          <label htmlFor="registerCode">register code</label>
+          <input type="password" placeholder="register code" id="registerCode"></input>
           <button className="register-btn" onClick={() => tryRegisteringNewAccount(props)}>
             Register
           </button>
