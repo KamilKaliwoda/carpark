@@ -18,7 +18,7 @@ export const app = express();
 
 app.use(
   cors({
-    origin: ['https://www.carpark.site', 'https://carpark.site', 'https://www.carpark.site.', 'https://carpark.site']
+    origin: ['https://www.carpark.site', 'https://carpark.site', 'https://www.carpark.site.', 'https://carpark.site.']
   }),
 );
 
