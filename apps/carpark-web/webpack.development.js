@@ -16,6 +16,7 @@ module.exports = {
   devServer: {
     port: 8131,
     hot: false,
+    webSocketServer: false,
     allowedHosts: ['carpark.site', 'www.carpark.site'],
     compress: true
   },
