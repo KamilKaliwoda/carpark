@@ -12,10 +12,6 @@ import fs from 'fs';
 
 
 dotenv.config();
-// const httpsOptions = {
-//   key: fs.readFileSync(resolve(__dirname, '../../../../../../certs/private.pem')),
-//   cert: fs.readFileSync(resolve(__dirname, '../../../../../../certs/certificate.pem'))
-// };
 
 
 export const app = express();
@@ -41,6 +37,3 @@ const server = app.listen(Number(process.env.SERVER_PORT), '0.0.0.0', () => {
   console.log(`HTTP server running on port ${process.env.SERVER_PORT}...`);
 });
 
-// const server = https.createServer(httpsOptions, app).listen(Number(process.env.SERVER_PORT), '0.0.0.0', () => {
-//   console.log(`HTTPS server running on port ${process.env.SERVER_PORT}...`);
-// });

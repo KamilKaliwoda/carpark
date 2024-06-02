@@ -40,7 +40,7 @@ const addMissingTables = async (app, sql) => {
         const query = `
         CREATE TABLE IF NOT EXISTS Spaces.ParkingSpace (
             id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            space_number INT NOT NULL,
+            space_number VARCHAR(50) NOT NULL,
             active BOOLEAN
         );
 

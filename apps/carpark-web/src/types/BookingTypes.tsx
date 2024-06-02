@@ -12,5 +12,5 @@ export enum BookingDays {
 }
 
 export interface BookingData {
-    space_number: number;
+    space_number: String;
   }

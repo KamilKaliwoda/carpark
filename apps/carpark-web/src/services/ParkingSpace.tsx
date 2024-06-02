@@ -95,9 +95,9 @@ export function SelectSpaceNumber(props: any) {
   }
 
   export function ActivateSpaceNumber(props: any) {
-    const spaceNumber = Number((document.getElementById('SpaceNumber') as HTMLInputElement).value);
+    const spaceNumber = String((document.getElementById('SpaceNumber') as HTMLInputElement).value);
     if (!spaceNumber) {
-      alert('Space number should be a number');
+      alert('Invalid space number');
       return;
     } else if (props.bookingData.some((obj: BookingData) => obj.space_number === spaceNumber)) {
       alert('This space already exists');

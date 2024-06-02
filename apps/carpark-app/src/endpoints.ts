@@ -166,7 +166,8 @@ const getBookingConfiguration = (app, sql) => {
         on ps.id = wef.space_id
         left join Users.User us2
         on us2.id = wef.user_id
-        where ps.active = TRUE;
+        where ps.active = TRUE
+        order by ps.space_number;
       `
       const result = await sql.query(query);
       res.send(result.rows);
@@ -188,7 +189,8 @@ const getBookingWeekdayConfiguration = (app, sql) => {
       on psu.space_id = ps.id and psu.active = TRUE and psu.working_day_id = (select id from Days.WorkingDay where weekday = '${weekday}')
       left join Users.User us
       on us.id = psu.user_id
-      where ps.active = TRUE;
+      where ps.active = TRUE
+      order by ps.space_number;
       `
       const result = await sql.query(query);
       res.send(result.rows);
@@ -254,7 +256,8 @@ const getBookingConfigurationAdministration = (app, sql) => {
       const query = `
       select space_number
       from Spaces.ParkingSpace
-      where active = TRUE;
+      where active = TRUE
+      order by space_number;
       `
       const result = await sql.query(query);
       res.send(result.rows);
@@ -387,7 +390,7 @@ const releaseWeekdayParkingSpace = (app, sql) => {
 
 const activateParkingSpace = (app, sql) => {
   app.get('/api/activateParkingSpace', async function (req, res) {
-    const spaceNumber: number = req.query.spaceNumber;
+    const spaceNumber: string = req.query.spaceNumber;
     try {
       const query = `
       DO $$
@@ -396,15 +399,15 @@ const activateParkingSpace = (app, sql) => {
       BEGIN
           SELECT 1 INTO space_exists
           FROM Spaces.ParkingSpace
-          WHERE space_number = ${spaceNumber};
+          WHERE space_number = '${spaceNumber}';
           
           IF space_exists THEN
               UPDATE Spaces.ParkingSpace
               SET active = TRUE
-              WHERE space_number = ${spaceNumber};
+              WHERE space_number = '${spaceNumber}';
           ELSE
               INSERT INTO Spaces.ParkingSpace (space_number, active)
-              VALUES (${spaceNumber}, TRUE);
+              VALUES ('${spaceNumber}', TRUE);
           END IF;
       END $$;
       `
@@ -419,7 +422,7 @@ const activateParkingSpace = (app, sql) => {
 
 const deactivateParkingSpace = (app, sql) => {
   app.get('/api/deactivateParkingSpace', async function (req, res) {
-    const spaceNumber: number = req.query.space_number;
+    const spaceNumber: string = req.query.space_number;
     try {
       const query = `
       BEGIN;
@@ -430,25 +433,25 @@ const deactivateParkingSpace = (app, sql) => {
       SET active = FALSE
       WHERE id = (SELECT id 
         FROM Spaces.ParkingSpace
-        WHERE space_number = ${spaceNumber});
+        WHERE space_number = '${spaceNumber}');
 
       UPDATE Spaces.ParkingSpaceToUser
       SET active = FALSE
       WHERE space_id = (SELECT id 
         FROM Spaces.ParkingSpace
-        WHERE space_number = ${spaceNumber});
+        WHERE space_number = '${spaceNumber}');
 
       UPDATE Spaces.WeekdayParkingSpaceToUser
       SET active = FALSE
       WHERE space_id = (SELECT id 
         FROM Spaces.ParkingSpace
-        WHERE space_number = ${spaceNumber});
+        WHERE space_number = '${spaceNumber}');
 
       UPDATE Spaces.WeekdayExclusionParkingSpaceToUser
       SET active = FALSE
       WHERE space_id = (SELECT id 
         FROM Spaces.ParkingSpace
-        WHERE space_number = ${spaceNumber});
+        WHERE space_number = '${spaceNumber}');
 
       COMMIT;
       `
